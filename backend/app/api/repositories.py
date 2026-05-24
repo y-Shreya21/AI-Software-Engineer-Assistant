@@ -27,8 +27,10 @@ async def index_repository(payload: RepositoryRequest):
 
         return {
             "status": "success",
+            "repository": payload.github_url,
             "total_files": len(files),
-            "total_chunks": total_chunks
+            "total_chunks": total_chunks,
+            "files": files,
         }
 
     except Exception as e:

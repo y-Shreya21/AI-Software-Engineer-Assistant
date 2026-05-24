@@ -23,6 +23,7 @@ async def index_repository(payload: RepositoryRequest):
         return {
             "status": "success",
             "total_files": len(files),
+            "total_chunks": total_chunks,
             "files": files[:20]
         }
 
