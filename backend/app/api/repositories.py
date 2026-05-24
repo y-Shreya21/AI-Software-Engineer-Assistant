@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from app.services.git_service import clone_repository
 from app.services.file_service import scan_repository
 from app.services.indexing_service import index_repository_files
+from fastapi import Query
 
 router = APIRouter()
 
@@ -31,6 +32,28 @@ async def index_repository(payload: RepositoryRequest):
             "total_files": len(files),
             "total_chunks": total_chunks,
             "files": files,
+        }
+
+    except Exception as e:
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+@router.get("/file")
+async def get_file_content(
+    path: str = Query(...)
+):
+
+    try:
+
+        with open(path, "r") as file:
+
+            content = file.read()
+
+        return {
+            "path": path,
+            "content": content
         }
 
     except Exception as e:

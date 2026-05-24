@@ -3,6 +3,8 @@ type Props = {
   totalFiles: number
   totalChunks: number
   files: string[]
+  selectedFile: string
+  onFileSelect: (filePath: string) => void
 }
 
 function fileLabel(path: string) {
@@ -15,6 +17,8 @@ export default function RepositorySidebar({
   totalFiles,
   totalChunks,
   files,
+  selectedFile,
+  onFileSelect,
 }: Props) {
   return (
     <aside className="w-80 shrink-0 h-screen bg-zinc-950 border-r border-zinc-800 p-5 overflow-y-auto">
@@ -49,12 +53,17 @@ export default function RepositorySidebar({
         ) : (
           <ul className="space-y-2">
             {files.map((file) => (
-              <li
-                key={file}
-                title={file}
-                className="bg-zinc-900 p-3 rounded-lg text-sm text-zinc-300 break-all"
-              >
-                {fileLabel(file)}
+              <li key={file}>
+                <button
+                  type="button"
+                  title={file}
+                  onClick={() => onFileSelect(file)}
+                  className={`w-full text-left bg-zinc-900 p-3 rounded-lg text-sm text-zinc-300 break-all hover:bg-zinc-800 ${
+                    selectedFile === file ? "ring-2 ring-blue-500" : ""
+                  }`}
+                >
+                  {fileLabel(file)}
+                </button>
               </li>
             ))}
           </ul>
