@@ -6,6 +6,7 @@ import RepoIndexer from "@/components/RepoIndexer"
 import ChatBox from "@/components/ChatBox"
 import RepositorySidebar from "@/components/RepositorySidebar"
 import FileViewer from "@/components/FileViewer"
+import ArchitectureDiagram from "@/components/ArchitectureDiagram"
 import { API_BASE_URL } from "@/lib/api"
 
 export default function HomePage() {
@@ -15,6 +16,7 @@ export default function HomePage() {
   const [files, setFiles] = useState<string[]>([])
   const [selectedFile, setSelectedFile] = useState("")
   const [fileContent, setFileContent] = useState("")
+  const [diagram, setDiagram] = useState("")
 
   async function handleFileSelect(filePath: string) {
     setSelectedFile(filePath)
@@ -44,6 +46,16 @@ export default function HomePage() {
     }
   }
 
+  async function loadArchitecture() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/architecture/graph`)
+      const data = await response.json()
+      setDiagram(data.diagram)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   return (
     <main className="flex bg-black text-white min-h-screen">
       <RepositorySidebar
@@ -69,6 +81,13 @@ export default function HomePage() {
           AI-powered codebase understanding platform.
         </p>
 
+        <button
+          onClick={() => loadArchitecture()}
+          className="mt-6 px-6 py-3 rounded-xl bg-white text-black font-semibold"
+        >
+          Generate Architecture Diagram
+        </button>
+
         <RepoIndexer
           setRepository={setRepository}
           setTotalFiles={setTotalFiles}
@@ -77,6 +96,15 @@ export default function HomePage() {
         />
 
         <ChatBox />
+
+        {diagram && (
+          <div className="mt-10">
+            <h2 className="text-2xl font-bold mb-4">
+              Architecture Diagram
+            </h2>
+            <ArchitectureDiagram chart={diagram} />
+          </div>
+        )}
       </div>
     </main>
   )

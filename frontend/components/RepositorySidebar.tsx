@@ -1,3 +1,6 @@
+import FileTree from "./FileTree"
+import { buildFileTree } from "@/lib/buildFileTree"
+
 type Props = {
   repository: string
   totalFiles: number
@@ -7,10 +10,7 @@ type Props = {
   onFileSelect: (filePath: string) => void
 }
 
-function fileLabel(path: string) {
-  const parts = path.split("/")
-  return parts[parts.length - 1] || path
-}
+
 
 export default function RepositorySidebar({
   repository,
@@ -20,6 +20,7 @@ export default function RepositorySidebar({
   selectedFile,
   onFileSelect,
 }: Props) {
+  const tree = buildFileTree(files)
   return (
     <aside className="w-80 shrink-0 h-screen bg-zinc-950 border-r border-zinc-800 p-5 overflow-y-auto">
       <h2 className="text-2xl font-bold mb-6">Repository</h2>
@@ -42,33 +43,11 @@ export default function RepositorySidebar({
           <p className="text-2xl font-bold mt-2">{totalChunks}</p>
         </div>
       </div>
-
-      <div>
-        <h3 className="text-lg font-semibold mb-3">Indexed Files</h3>
-
-        {files.length === 0 ? (
-          <p className="text-sm text-zinc-500">
-            Index a repository to see scanned files here.
-          </p>
-        ) : (
-          <ul className="space-y-2">
-            {files.map((file) => (
-              <li key={file}>
-                <button
-                  type="button"
-                  title={file}
-                  onClick={() => onFileSelect(file)}
-                  className={`w-full text-left bg-zinc-900 p-3 rounded-lg text-sm text-zinc-300 break-all hover:bg-zinc-800 ${
-                    selectedFile === file ? "ring-2 ring-blue-500" : ""
-                  }`}
-                >
-                  {fileLabel(file)}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <FileTree
+        tree={tree}
+        openFile={onFileSelect}
+        selectedFile={selectedFile}
+      />
     </aside>
   )
 }

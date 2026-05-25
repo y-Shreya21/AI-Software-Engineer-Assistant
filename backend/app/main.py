@@ -10,6 +10,7 @@ from app.api.repositories import router as repo_router
 from app.services.qdrant_service import create_collection
 from app.api.search import router as search_router
 from app.api.chat import router as chat_router
+from app.api import architecture
 
 
 @asynccontextmanager
@@ -58,4 +59,9 @@ app.include_router(
     chat_router,
     prefix="/chat",
     tags=["Chat"]
+)
+app.include_router(
+    architecture.router,
+    prefix="/architecture",
+    tags=["Architecture"]
 )
