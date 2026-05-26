@@ -7,7 +7,7 @@ from qdrant_client.models import (
 from app.core.config import settings
 
 client = QdrantClient(
-    path="./qdrant_data"
+    url=settings.QDRANT_URL
 )
 
 COLLECTION_NAME = "codebase_vectors"

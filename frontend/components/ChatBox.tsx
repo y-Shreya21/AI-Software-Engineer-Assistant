@@ -34,6 +34,7 @@ export default function ChatBox() {
       }
 
       setMessages((prev) => [...prev, userMessage])
+      setQuestion("")
 
       const response = await fetch(`${API_BASE_URL}/chat/stream`, {
         method: "POST",
@@ -85,8 +86,6 @@ export default function ChatBox() {
           return updated
         })
       }
-
-      setQuestion("")
     } catch (err) {
       console.error(err)
       setError("Could not reach the chat API. Is the backend running?")

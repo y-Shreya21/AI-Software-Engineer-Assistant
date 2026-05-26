@@ -68,6 +68,11 @@ def generate_mermaid(graph):
         )
 
         for target in targets:
+            if not (
+                target.startswith("app")
+                or target.startswith("backend")
+            ):
+                continue
 
             target_name = clean_node_name(
                 target.split(".")[-1]
@@ -76,13 +81,7 @@ def generate_mermaid(graph):
             edge = f"{source_name} --> {target_name}"
 
             if edge not in added:
-
                 added.add(edge)
-
                 lines.append(edge)
-            if not (
-                target.startswith("app")
-                or target.startswith("backend")
-            ):continue
 
     return "\n".join(lines)

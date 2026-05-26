@@ -34,6 +34,32 @@ services:
     ports:
       - "6379:6379"
 
+  backend:
+    build:
+      context: ./backend
+    container_name: ai_backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/ai_engineer
+      QDRANT_URL: http://qdrant:6333
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - qdrant
+      - redis
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://backend:8000
+    container_name: ai_frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
 volumes:
   postgres_data:
   qdrant_data:

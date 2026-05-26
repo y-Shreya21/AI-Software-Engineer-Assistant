@@ -8,6 +8,8 @@ import RepositorySidebar from "@/components/RepositorySidebar"
 import FileViewer from "@/components/FileViewer"
 import ArchitectureDiagram from "@/components/ArchitectureDiagram"
 import { API_BASE_URL } from "@/lib/api"
+import SemanticSearch
+from "@/components/SemanticSearch"
 
 export default function HomePage() {
   const [repository, setRepository] = useState("")
@@ -96,6 +98,9 @@ export default function HomePage() {
         />
 
         <ChatBox />
+        <SemanticSearch
+          onFileSelect={handleFileSelect}
+        />
 
         {diagram && (
           <div className="mt-10">

@@ -11,6 +11,9 @@ from app.services.qdrant_service import create_collection
 from app.api.search import router as search_router
 from app.api.chat import router as chat_router
 from app.api import architecture
+from app.api import tests
+from app.api import review
+from app.api import fix
 
 
 @asynccontextmanager
@@ -64,4 +67,19 @@ app.include_router(
     architecture.router,
     prefix="/architecture",
     tags=["Architecture"]
+)
+app.include_router(
+    tests.router,
+    prefix="/tests",
+    tags=["Tests"]
+)
+app.include_router(
+    review.router,
+    prefix="/review",
+    tags=["Review"]
+)
+app.include_router(
+    fix.router,
+    prefix="/fix",
+    tags=["Fix"]
 )
