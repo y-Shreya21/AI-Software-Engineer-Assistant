@@ -1,8 +1,10 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
     Distance,
+    PointStruct,
     VectorParams
 )
+import uuid
 
 from app.core.config import settings
 
@@ -14,8 +16,11 @@ COLLECTION_NAME = "codebase_vectors"
 
 
 def create_collection():
-
-    collections = client.get_collections().collections
+    try:
+        collections = client.get_collections().collections
+    except Exception as error:
+        print(f"Qdrant unavailable during startup: {error}")
+        return
 
     existing = [
         collection.name
@@ -32,8 +37,6 @@ def create_collection():
                 distance=Distance.COSINE
             )
         )
-from qdrant_client.models import PointStruct
-import uuid
 
 
 def store_embedding(

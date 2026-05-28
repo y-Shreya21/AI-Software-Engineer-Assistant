@@ -5,7 +5,9 @@ from app.services.git_service import clone_repository
 from app.services.file_service import scan_repository
 from app.services.indexing_service import index_repository_files
 from fastapi import Query
-
+from app.services.repository_map_service import (
+    build_repository_map
+)
 router = APIRouter()
 
 
@@ -23,6 +25,7 @@ async def index_repository(payload: RepositoryRequest):
         )
 
         files = scan_repository(repo_path)[:20]
+        build_repository_map(files)
 
         total_chunks = index_repository_files(files)
 
