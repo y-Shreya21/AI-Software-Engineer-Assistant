@@ -18,9 +18,13 @@ from app.api import fix
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+
+    # TEMPORARILY DISABLED FOR RAILWAY DEPLOYMENT
+    # async with engine.begin() as conn:
+    #     await conn.run_sync(Base.metadata.create_all)
+
     create_collection()
+
     yield
 
 
