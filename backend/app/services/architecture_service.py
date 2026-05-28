@@ -3,6 +3,12 @@ import ast
 from collections import defaultdict
 
 
+import ast
+import os
+
+from collections import defaultdict
+
+
 def analyze_dependencies(files):
 
     graph = defaultdict(list)
@@ -11,6 +17,8 @@ def analyze_dependencies(files):
 
         if not file_path.endswith(".py"):
             continue
+
+        filename = os.path.basename(file_path)
 
         try:
 
@@ -24,32 +32,27 @@ def analyze_dependencies(files):
 
             for node in ast.walk(tree):
 
-                if isinstance(node, ast.Import):
-
-                    for name in node.names:
-
-                        imports.append(name.name)
-
-                elif isinstance(node, ast.ImportFrom):
+                if isinstance(node, ast.ImportFrom):
 
                     if node.module:
 
-                        imports.append(node.module)
+                        if node.module.startswith("app"):
 
-            graph[file_path] = imports
+                            imports.append(
+                                node.module
+                            )
 
-        except Exception as error:
+            graph[filename] = imports
 
-            print(error)
+        except Exception:
 
             continue
 
     return dict(graph)
-def clean_node_name(name):
+def clean(name):
 
     return (
         name.replace(".py", "")
-        .replace("-", "_")
         .replace(".", "_")
         .replace("/", "_")
     )
@@ -63,25 +66,22 @@ def generate_mermaid(graph):
 
     for source, targets in graph.items():
 
-        source_name = clean_node_name(
-            source.split("/")[-1]
-        )
+        source_name = clean(source)
 
         for target in targets:
-            if not (
-                target.startswith("app")
-                or target.startswith("backend")
-            ):
-                continue
 
-            target_name = clean_node_name(
-                target.split(".")[-1]
+            target_name = clean(
+                target.replace("app.", "")
             )
 
-            edge = f"{source_name} --> {target_name}"
+            edge = (
+                f"{source_name} --> {target_name}"
+            )
 
             if edge not in added:
+
                 added.add(edge)
+
                 lines.append(edge)
 
     return "\n".join(lines)
