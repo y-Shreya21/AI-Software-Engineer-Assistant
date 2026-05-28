@@ -2,20 +2,54 @@ import ollama
 
 from app.services.embedding_service import generate_embedding
 from app.services.qdrant_service import search_similar_code
+from app.services.repository_map_service import (
+    find_related_files
+)
 
 
 def _build_prompt(question: str) -> tuple[str, list]:
-    query_embedding = generate_embedding(question)
+
+    query_embedding = generate_embedding(
+        question
+    )
+
+    related_files = find_related_files(
+        question
+    )
 
     results = search_similar_code(
         query_embedding,
         limit=5,
     )
 
-    context = "\n\n".join([
+    related_context = ""
+
+    for file_path in related_files[:5]:
+
+        try:
+
+            with open(file_path, "r") as file:
+
+                related_context += (
+                    f"\n\nFILE: {file_path}\n"
+                )
+
+                related_context += file.read()
+
+        except Exception:
+
+            continue
+
+    vector_context = "\n\n".join([
         result.payload.get("content", "")
         for result in results
     ])
+
+    context = (
+        vector_context
+        + "\n\n"
+        + related_context
+    )
 
     prompt = f"""
 You are an AI Software Engineer Assistant.
@@ -36,7 +70,6 @@ Question:
     ]
 
     return prompt, sources
-
 
 def ask_repository(question: str):
     prompt, sources = _build_prompt(question)
