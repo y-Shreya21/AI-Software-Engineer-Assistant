@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.database import engine
@@ -14,14 +14,15 @@ from app.api import architecture
 from app.api import tests
 from app.api import review
 from app.api import fix
+from app.api.auth import router as auth_router
+from app.core.rate_limit import rate_limiter
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 
-    # TEMPORARILY DISABLED FOR RAILWAY DEPLOYMENT
-    # async with engine.begin() as conn:
-    #     await conn.run_sync(Base.metadata.create_all)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
     create_collection()
 
@@ -32,6 +33,7 @@ app = FastAPI(
     title="AI Software Engineer Assistant",
     version="0.1.0",
     lifespan=lifespan,
+    dependencies=[Depends(rate_limiter)]
 )
 
 app.add_middleware(
@@ -39,17 +41,37 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "http://10.162.64.181:3000",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    from app.core.metrics import increment_request_count
+    increment_request_count(request.method, request.url.path)
+    
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
+    return response
+
 @app.get("/health")
 async def health_check():
     return {
         "status": "healthy"
     }
+
+@app.get("/metrics")
+async def metrics_endpoint():
+    from fastapi import Response
+    from app.core.metrics import generate_prometheus_report
+    return Response(content=generate_prometheus_report(), media_type="text/plain")
 
 # Register the router
 app.include_router(
@@ -86,4 +108,9 @@ app.include_router(
     fix.router,
     prefix="/fix",
     tags=["Fix"]
+)
+app.include_router(
+    auth_router,
+    prefix="/auth",
+    tags=["Authentication"]
 )

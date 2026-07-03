@@ -36,10 +36,12 @@ export default function ChatBox() {
       setMessages((prev) => [...prev, userMessage])
       setQuestion("")
 
+      const token = localStorage.getItem("access_token")
       const response = await fetch(`${API_BASE_URL}/chat/stream`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({
           question: currentQuestion,

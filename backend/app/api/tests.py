@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-import ollama
+from app.services.agents import CoordinatorAgent
 
 router = APIRouter()
 
@@ -16,34 +16,9 @@ async def generate_tests(
     payload: TestRequest
 ):
 
-    prompt = f"""
-You are an expert Python test engineer.
-
-Generate high-quality pytest unit tests
-for the following code.
-
-Code:
-{payload.code}
-
-Requirements:
-- Use pytest
-- Include edge cases
-- Include mocks if needed
-- Write production-quality tests
-"""
-
-    response = ollama.chat(
-        model="llama3",
-
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
-    )
+    coordinator = CoordinatorAgent()
+    response = coordinator.route_request("generate tests", code=payload.code)
 
     return {
-        "tests":
-        response["message"]["content"]
+        "tests": response["answer"]
     }

@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 
 import RepoIndexer from "@/components/RepoIndexer"
 import ChatBox from "@/components/ChatBox"
@@ -8,10 +9,11 @@ import RepositorySidebar from "@/components/RepositorySidebar"
 import FileViewer from "@/components/FileViewer"
 import ArchitectureDiagram from "@/components/ArchitectureDiagram"
 import { API_BASE_URL } from "@/lib/api"
-import SemanticSearch
-from "@/components/SemanticSearch"
+import SemanticSearch from "@/components/SemanticSearch"
 
 export default function HomePage() {
+  const router = useRouter()
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [repository, setRepository] = useState("")
   const [totalFiles, setTotalFiles] = useState(0)
   const [totalChunks, setTotalChunks] = useState(0)
@@ -20,13 +22,28 @@ export default function HomePage() {
   const [fileContent, setFileContent] = useState("")
   const [diagram, setDiagram] = useState("")
 
+  useEffect(() => {
+    const token = localStorage.getItem("access_token")
+    if (!token) {
+      router.push("/login")
+    } else {
+      setIsAuthenticated(true)
+    }
+  }, [router])
+
   async function handleFileSelect(filePath: string) {
     setSelectedFile(filePath)
     setFileContent("")
 
     try {
+      const token = localStorage.getItem("access_token")
       const response = await fetch(
-        `${API_BASE_URL}/repos/file?path=${encodeURIComponent(filePath)}`
+        `${API_BASE_URL}/repos/file?path=${encodeURIComponent(filePath)}`,
+        {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        }
       )
 
       if (!response.ok) {
@@ -50,12 +67,25 @@ export default function HomePage() {
 
   async function loadArchitecture() {
     try {
-      const response = await fetch(`${API_BASE_URL}/architecture/graph`)
+      const token = localStorage.getItem("access_token")
+      const response = await fetch(`${API_BASE_URL}/architecture/graph`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      })
       const data = await response.json()
       setDiagram(data.diagram)
     } catch (error) {
       console.error(error)
     }
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="bg-black min-h-screen flex items-center justify-center text-zinc-500 text-sm">
+        Verifying session...
+      </div>
+    )
   }
 
   return (

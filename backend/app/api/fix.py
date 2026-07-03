@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-import ollama
+from app.services.agents import CoordinatorAgent
 
 router = APIRouter()
 
@@ -16,38 +16,9 @@ async def generate_fix(
     payload: FixRequest
 ):
 
-    prompt = f"""
-You are an expert senior software engineer.
-
-Analyze the following code.
-
-Fix:
-- bugs
-- bad practices
-- performance issues
-- async issues
-- architecture problems
-
-Return:
-1. Improved code
-2. Explanation of fixes
-
-Code:
-{payload.code}
-"""
-
-    response = ollama.chat(
-        model="llama3",
-
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
-    )
+    coordinator = CoordinatorAgent()
+    response = coordinator.route_request("suggest fixes", code=payload.code)
 
     return {
-        "fix":
-        response["message"]["content"]
+        "fix": response["answer"]
     }
