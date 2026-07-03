@@ -1,5 +1,3 @@
-import os
-
 from app.services.chunk_service import chunk_text
 from app.services.embedding_service import generate_embedding
 from app.services.qdrant_service import store_embedding

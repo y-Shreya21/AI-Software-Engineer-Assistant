@@ -1,4 +1,3 @@
-from fastapi import Response
 
 # Counters for system monitoring
 metrics_data = {

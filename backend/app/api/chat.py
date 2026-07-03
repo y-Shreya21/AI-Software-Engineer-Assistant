@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from fastapi.responses import StreamingResponse
 
 from app.services.agents import CoordinatorAgent
+from app.services.ai_services import stream_repository_answer
 
 router = APIRouter()
 
