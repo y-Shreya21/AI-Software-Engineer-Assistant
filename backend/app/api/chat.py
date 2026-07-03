@@ -3,10 +3,8 @@ from pydantic import BaseModel
 
 from fastapi.responses import StreamingResponse
 
-from app.services.ai_services import (
-    ask_repository,
-    stream_repository_answer,
-)
+from app.services.agents import CoordinatorAgent
+from app.services.ai_services import stream_repository_answer
 
 router = APIRouter()
 
@@ -18,9 +16,8 @@ class ChatRequest(BaseModel):
 @router.post("/")
 async def chat_with_repo(payload: ChatRequest):
 
-    response = ask_repository(
-        payload.question
-    )
+    coordinator = CoordinatorAgent()
+    response = coordinator.route_request(payload.question)
 
     return response
 @router.post("/stream")

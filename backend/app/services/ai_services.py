@@ -9,6 +9,9 @@ from app.services.repository_map_service import (
 
 def _build_prompt(question: str) -> tuple[str, list]:
 
+    from app.core.security_guard import validate_prompt
+    validate_prompt(question)
+
     query_embedding = generate_embedding(
         question
     )

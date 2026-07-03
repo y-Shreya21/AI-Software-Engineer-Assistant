@@ -23,15 +23,15 @@ export default function SemanticSearch({
 
     try {
 
+      const token = localStorage.getItem("access_token")
       const response = await fetch(
         `${API_BASE_URL}/search`,
         {
           method: "POST",
-
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
           },
-
           body: JSON.stringify({
             query
           })

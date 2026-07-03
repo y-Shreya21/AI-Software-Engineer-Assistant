@@ -9,7 +9,8 @@ import uuid
 from app.core.config import settings
 
 client = QdrantClient(
-    url=settings.QDRANT_URL
+    url=settings.QDRANT_URL,
+    api_key=settings.QDRANT_API_KEY
 )
 
 COLLECTION_NAME = "codebase_vectors"

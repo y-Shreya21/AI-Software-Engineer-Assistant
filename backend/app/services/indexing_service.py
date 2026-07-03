@@ -1,5 +1,3 @@
-import os
-
 from app.services.chunk_service import chunk_text
 from app.services.embedding_service import generate_embedding
 from app.services.qdrant_service import store_embedding
@@ -14,10 +12,10 @@ def index_repository_files(files: list):
 
         try:
 
-            with open(file_path, "r", encoding="utf-8") as f:
-
+            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                 content = f.read()
-
+            from app.core.security_guard import redact_secrets
+            content = redact_secrets(content)
             chunks = chunk_text(content)
 
             for chunk in chunks:

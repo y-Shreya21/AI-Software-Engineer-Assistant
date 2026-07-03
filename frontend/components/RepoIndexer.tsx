@@ -42,10 +42,12 @@ export default function RepoIndexer({
       setError(null)
       setSuccess(null)
 
+      const token = localStorage.getItem("access_token")
       const response = await fetch(`${API_BASE_URL}/repos/index`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({
           github_url: githubUrl.trim(),
